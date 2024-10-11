@@ -120,7 +120,7 @@ def summarizeGPT2(df):
     return summary2
 
 
-# Summarize from capo
+# Summarize
 def summarize(df, group, summary_funcs, authFilePath, fileId, sheet_name):
     summaries = []
     for i, c in enumerate(group):
@@ -191,7 +191,7 @@ def summarize(df, group, summary_funcs, authFilePath, fileId, sheet_name):
 
 
 
-## Main from capo
+## Main
 if __name__ == '__main__':
     authFilePath = os.getenv("GOOGLE_CREDENTIALS_JSON")
     fileId = os.getenv("File_ID")
