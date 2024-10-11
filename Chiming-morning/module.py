@@ -411,7 +411,7 @@ def metaData(df):
 
     if not df.empty:
         for index, row in df.iterrows():
-            print(f"processing: {row['pid']}")
+            print(f"processing: {row['pid']}, \n {index+1}/{len(df)}")
             
             # 創建新的欄位
             what_happen_50 = generate_metadata(whatHappen50, row['article'])
