@@ -132,7 +132,7 @@ def ckipArticleCutter(article=None):
     entity = json.loads(response.text) 
 
     entity_list = entity['ResultData']
-    return entity_list # // output: list
+    return entity_list  # output: dict
 
 # name convert
 def name_convert_prompt(article_time, entity_list):
@@ -214,7 +214,7 @@ def name_convert_prompt(article_time, entity_list):
     article_name = generate_articleC(convert_prompt, article_time, json.dumps(name_list))
     # print(">>>人名置換後文章:\n", article_name)
 
-    return article_name, name_list  # 現在返回的 name_list 是列表格式
+    return article_name, name_list  # output: article_name is a str, name_list is a list
 
 
 # 清理文章內容
