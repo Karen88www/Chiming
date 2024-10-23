@@ -267,7 +267,17 @@ def get_completion(messages, model="gpt-4o", temperature=0):
         print(obj["error"])
         return obj["error"]
 
-# 生成日期轉換內容
+# # 生成摘要內容
+# def generate_content(prompt, data, colName):
+#     full_prompt = prompt
+#     for index, row in data.iterrows():
+#         full_prompt += f"```{row[colName]}```\n"
+#     messages = [
+#         { "role": "user", "content": full_prompt }
+#     ]
+#     return get_completion(messages)
+
+### 生成日期轉換內容
 def generate_date_convert(prompt, text, story_dt):
     messages = [
         {"role": "system", "content": prompt},
@@ -276,18 +286,7 @@ def generate_date_convert(prompt, text, story_dt):
     return get_completion(messages)
 
 
-# 生成摘要內容
-def generate_content(prompt, data, colName):
-    full_prompt = prompt
-    for index, row in data.iterrows():
-        full_prompt += f"```{row[colName]}```\n"
-    messages = [
-        { "role": "user", "content": full_prompt }
-    ]
-    return get_completion(messages)
-
-
-# 生成人物辨識
+#### 生成人名置換內容
 def generate_personName(prompt,content, person_list):
     person_list_str = json.dumps(person_list, ensure_ascii=False)
     messages = [
@@ -302,12 +301,4 @@ def generate_articleC(prompt,content,name_res):
         {"role": "user", "content": content + name_res}
     ]
     return get_completion(messages)
-
-    
-def count_num(tno):
-    title_data = getTopic(tno)
-    num = len(title_data['ResultData']['Items'])
-    title_df = get_title_data(title_data)
-    return num, title_df
-
 
