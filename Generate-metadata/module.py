@@ -14,37 +14,6 @@ from dotenv import load_dotenv
 load_dotenv()
 openai_api_key = os.getenv('Chiming_KEY')
 
-
-# 提取 tno 函數
-def extract_tno(url):
-    pattern = r'/topic/newstopic/(\d+)\.aspx'
-    match = re.search(pattern, url)
-    if match:
-        return match.group(1)
-    else:
-        return None
-
-# 根據 tno 獲取所有文章 id
-def getTopic(tno):
-    data = json.dumps({"tno": str(tno), "action": "0"})
-    headers = {"Content-Type": "application/json", 'User-Agent': 'CNA-crawler-wrfAYr4ZaAXyaRu'}
-    res = requests.post('https://www.cna.com.tw/cna2018api/api/ProjTopic', headers=headers, data=data).json()
-    return res
-
-# 設定錯誤判斷: 當tno不存在
-class DataStructureError(Exception):
-    pass
-
-def get_title_data(title_data):
-    if 'ResultData' in title_data and 'Items' in title_data['ResultData']:
-        return pd.DataFrame([
-            {'pid': i['Id'], 'published_dt': i['CreateTime'], 'h1': i['HeadLine']}
-            for i in title_data['ResultData']['Items']
-        ])
-    else:
-        print("Error: Unexpected data structure from getTopic")
-        raise DataStructureError("Error: Unexpected data structure from getTopic")
-
 # 根據 pid 獲取文章數據
 def getArticle(pid):
     data = json.dumps({"id": str(pid)})
@@ -61,8 +30,7 @@ def extender_counter(res):
                     for url in photo.get('Photo', '').split('|$@$|')])
     return 0
 
-# 計算文章日
-
+### 日期置換 ###
 # check date
 def story_dt_cnt(res):
     # 發稿日期
@@ -133,7 +101,7 @@ def date_noun_converter(story_dt, paragraphs):
 
     return article_time
 
-
+### 人名置換 ###
 # 從實體辨識裡面抓出人物、機關、事件
 def ckipArticleCutter(article=None):
     # 檢查 article 是否返回有效結果
@@ -248,6 +216,7 @@ def name_convert_prompt(article_time, entity_list):
 
     return article_name, name_list  # 現在返回的 name_list 是列表格式
 
+
 # 清理文章內容
 def clean_text(res, entity_list):
 
@@ -275,23 +244,15 @@ def get_article_data(pid):
         'name_list': clean_text(article_data)[1] # 有需要加進去到這個嗎？
     }
 
-
-def process_articles(title_df):
-    article_data_list = []
-    for pid in title_df['pid']:
-        article_data_list.append(get_article_data(pid))
-        time.sleep(2)
-    return pd.DataFrame(article_data_list)
-
-# 計算加權分數
-def calculate_weighted_scores(df):
-    df['ex_score'] = df['extender'] * 1.5
-    date_counts = df['published_dt'].value_counts().sort_values(ascending=False)
-    date_weights = {date: len(date_counts) - i for i, date in enumerate(date_counts.index)}
-    df['weighted_score'] = df.apply(lambda row: row['ex_score'] + date_weights[row['published_dt']], axis=1)
-    df = df.sort_values('weighted_score', ascending=False)
-    df_filtered = df[df['weighted_score'] > df['weighted_score'].max() / 2]
-    return df_filtered
+# # 計算加權分數
+# def calculate_weighted_scores(df):
+#     df['ex_score'] = df['extender'] * 1.5
+#     date_counts = df['published_dt'].value_counts().sort_values(ascending=False)
+#     date_weights = {date: len(date_counts) - i for i, date in enumerate(date_counts.index)}
+#     df['weighted_score'] = df.apply(lambda row: row['ex_score'] + date_weights[row['published_dt']], axis=1)
+#     df = df.sort_values('weighted_score', ascending=False)
+#     df_filtered = df[df['weighted_score'] > df['weighted_score'].max() / 2]
+#     return df_filtered
 
 
 # OpenAI API 的設置
